@@ -1,4 +1,6 @@
-var N_PARTICLES = 1000;
+// Number of particles
+var N_PARTICLES = 100;
+var P_CONNECTED = true;
 
 var ParticleObject = function() {
     this.MAX_VEL = 1;
@@ -28,12 +30,12 @@ var ParticleObject = function() {
         this.fadeInAge = this.FADE_TIME * this.life;
         this.fadeOutAge = (1 - this.FADE_TIME) * this.life;
     }
-    
+
     this.draw = function() {
         fill(this.colorr, this.colorg, this.colorb, this.alpha);
         ellipse(this.xx, this.yy, this.size, this.size);
     }
-    
+
     this.update = function() {
         this.age += 1;
         if(this.age > this.life) {
@@ -41,15 +43,15 @@ var ParticleObject = function() {
             return;
         }
 
-        
+
         if(this.age < this.fadeInAge) {
-            this.alpha += this.fadeAlpha;    
+            this.alpha += this.fadeAlpha;
         }
         else if(this.age > this.fadeOutAge) {
-            this.alpha -= this.fadeAlpha;    
+            this.alpha -= this.fadeAlpha;
         }
         // Check if out of bounds
-        if(this.xx > window.innerWidth || this.xx < 0 
+        if(this.xx > window.innerWidth || this.xx < 0
             || this.yy > window.innerHeight || this.yy < 0) {
                 this.init();
                 return;
@@ -60,6 +62,27 @@ var ParticleObject = function() {
 }
 
 var particles = [];
+
+function DrawConnections() {
+    for (var i = 0; i < N_PARTICLES; ++i) {
+        for(var j = i+1; j < N_PARTICLES; ++j) {
+            strokeWeight(1);
+            alpha = (100 - Math.sqrt(Math.pow((particles[i].xx - particles[j].xx), 2) + Math.pow((particles[i].yy - particles[j].yy), 2))) / 100.1;
+            alpha = alpha > 0? alpha : 0;
+
+            min_age = Math.min((particles[i].life - particles[i].age), (particles[j].life - particles[j].age), particles[i].age, particles[j].age);
+            if (min_age < 20) {
+                alpha *= min_age/20;
+            }
+
+            alpha *= 0.5;
+            stroke('rgba(255, 255, 255, ' + alpha + ')');
+
+            line(particles[i].xx, particles[i].yy, particles[j].xx, particles[j].yy);
+
+        }
+    }
+}
 
 function setup() {
     createCanvas(displayWidth, displayHeight);
@@ -77,5 +100,9 @@ function draw() {
     for (var i = 0; i < N_PARTICLES; ++i) {
         particles[i].update();
         particles[i].draw();
+    }
+
+    if (P_CONNECTED) {
+        DrawConnections();
     }
 }
