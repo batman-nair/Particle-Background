@@ -1,5 +1,6 @@
 // Number of particles
 var N_PARTICLES = 100;
+// If the particles should be connected
 var P_CONNECTED = true;
 
 var ParticleObject = function() {
@@ -63,20 +64,40 @@ var ParticleObject = function() {
 
 var particles = [];
 
+// Threshold for establishing connection
+var CONN_THRESH = 100;
+
+var AGE_CONN_FADE_THRESH = 20; // Age to which fading happens
+var ALPHA_FINAL_ADJUST = 1; // A final adjustment to alpha value
+
 function DrawConnections() {
     for (var i = 0; i < N_PARTICLES; ++i) {
         for(var j = i+1; j < N_PARTICLES; ++j) {
             strokeWeight(1);
-            alpha = (100 - Math.sqrt(Math.pow((particles[i].xx - particles[j].xx), 2) + Math.pow((particles[i].yy - particles[j].yy), 2))) / 100.1;
-            alpha = alpha > 0? alpha : 0;
-
-            min_age = Math.min((particles[i].life - particles[i].age), (particles[j].life - particles[j].age), particles[i].age, particles[j].age);
-            if (min_age < 20) {
-                alpha *= min_age/20;
+            distance = Math.sqrt(Math.pow((particles[i].xx - particles[j].xx), 2) + Math.pow((particles[i].yy - particles[j].yy), 2));
+            if (distance > CONN_THRESH) {
+                alpha = 0;
+            }
+            else {
+                alpha = (CONN_THRESH - distance) / CONN_THRESH;
             }
 
-            alpha *= 0.5;
-            stroke('rgba(255, 255, 255, ' + alpha + ')');
+            // To create a fade effect as one particle is born or dying
+            min_age = Math.min((particles[i].life - particles[i].age),
+                (particles[j].life - particles[j].age),
+                particles[i].age, particles[j].age,
+                particles[i].alpha, particles[j].alpha);
+            if (min_age < AGE_CONN_FADE_THRESH) {
+                alpha *= min_age/AGE_CONN_FADE_THRESH;
+            }
+
+            alpha *= ALPHA_FINAL_ADJUST;
+
+            colorr = int((particles[i].colorr + particles[j].colorr) / 2);
+            colorg = int((particles[i].colorg + particles[j].colorg) / 2);
+            colorb = int((particles[i].colorb + particles[j].colorb) / 2);
+
+            stroke('rgba(' + colorr +', '+ colorg +', '+ colorb +', '+ alpha + ')');
 
             line(particles[i].xx, particles[i].yy, particles[j].xx, particles[j].yy);
 
