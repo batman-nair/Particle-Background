@@ -25,14 +25,35 @@ var ParticleObject = function() {
         this.colorg = random(255);
         this.colorb = random(255);
         this.alpha = random(100);
+        this.viewAlpha = this.alpha;
         // fadeAlpha: Change to alpha value when fading
         this.fadeAlpha = this.alpha/(this.FADE_TIME*this.life);
+        this.fadeThresh = this.life * this.FADE_TIME;
         // fade age: Age at which fading sets in and out, precalculated
         this.fadeInAge = this.FADE_TIME * this.life;
         this.fadeOutAge = (1 - this.FADE_TIME) * this.life;
     }
 
+    this.kill = function() {
+        if (this.age < this.fadeOutAge) {
+            this.age = this.fadeOutAge;
+        }
+        if(this.age <= 0) {
+            this.init();
+        }
+    }
+
     this.draw = function() {
+        this.alphaAdjust = 1;
+        if(this.age < this.fadeInAge) {
+            this.alphaAdjust = 1 - (this.fadeInAge - this.age) / this.fadeThresh;
+        }
+        else if(this.age > this.fadeOutAge) {
+            this.alphaAdjust = 1 - (this.age - this.fadeOutAge) / this.fadeThresh;
+        }
+        this.alpha = this.viewAlpha * this.alphaAdjust;
+
+        noStroke();
         fill(this.colorr, this.colorg, this.colorb, this.alpha);
         ellipse(this.xx, this.yy, this.size, this.size);
     }
@@ -44,17 +65,10 @@ var ParticleObject = function() {
             return;
         }
 
-
-        if(this.age < this.fadeInAge) {
-            this.alpha += this.fadeAlpha;
-        }
-        else if(this.age > this.fadeOutAge) {
-            this.alpha -= this.fadeAlpha;
-        }
         // Check if out of bounds
         if(this.xx > window.innerWidth || this.xx < 0
             || this.yy > window.innerHeight || this.yy < 0) {
-                this.init();
+                this.kill();
                 return;
         }
         this.xx += this.vx;
@@ -85,11 +99,12 @@ function DrawConnections() {
             // To create a fade effect as one particle is born or dying
             min_age = Math.min((particles[i].life - particles[i].age),
                 (particles[j].life - particles[j].age),
-                particles[i].age, particles[j].age,
-                particles[i].alpha, particles[j].alpha);
+                particles[i].age, particles[j].age);
             if (min_age < AGE_CONN_FADE_THRESH) {
                 alpha *= min_age/AGE_CONN_FADE_THRESH;
             }
+
+            alpha = Math.min(alpha, particles[i].alpha, particles[j].alpha);
 
             alpha *= ALPHA_FINAL_ADJUST;
 
