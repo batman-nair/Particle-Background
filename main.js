@@ -121,7 +121,7 @@ function DrawConnections() {
 }
 
 function setup() {
-    createCanvas(displayWidth, displayHeight);
+    createCanvas(window.innerWidth, window.innerHeight);
     noStroke();
     frameRate(100);
 
