@@ -2,6 +2,11 @@
 var N_PARTICLES = 100;
 // If the particles should be connected
 var P_CONNECTED = true;
+// Threshold for establishing connection
+var CONN_THRESH = 100;
+
+var windowWidth = window.innerWidth,
+    windowHeight = window.innerHeight;
 
 var ParticleObject = function() {
     this.MAX_VEL = 1;
@@ -16,8 +21,8 @@ var ParticleObject = function() {
     this.init = function() {
         this.life = random(50, 300);
         this.size = random(this.MIN_SIZE, this.MAX_SIZE);
-        this.xx = random(window.innerWidth);
-        this.yy = random(window.innerHeight);
+        this.xx = random(windowWidth);
+        this.yy = random(windowHeight);
         this.vx = random(-(this.MAX_VEL), this.MAX_VEL);
         this.vy = random(-(this.MAX_VEL), this.MAX_VEL);
         this.age = 0;
@@ -66,8 +71,8 @@ var ParticleObject = function() {
         }
 
         // Check if out of bounds
-        if(this.xx > window.innerWidth || this.xx < 0
-            || this.yy > window.innerHeight || this.yy < 0) {
+        if(this.xx > windowWidth || this.xx < 0
+            || this.yy > windowHeight || this.yy < 0) {
                 this.kill();
                 return;
         }
@@ -78,8 +83,6 @@ var ParticleObject = function() {
 
 var particles = [];
 
-// Threshold for establishing connection
-var CONN_THRESH = 100;
 
 var AGE_CONN_FADE_THRESH = 20; // Age to which fading happens
 var ALPHA_FINAL_ADJUST = 1; // A final adjustment to alpha value
@@ -121,7 +124,7 @@ function DrawConnections() {
 }
 
 function setup() {
-    createCanvas(window.innerWidth, window.innerHeight);
+    createCanvas(windowWidth, windowHeight);
     noStroke();
     frameRate(100);
 
@@ -142,3 +145,8 @@ function draw() {
         DrawConnections();
     }
 }
+
+document.addEventListener("resize", function() {
+    innerWidth = window.innerWidth;
+    innerHeight = window.innerHeight;
+});
