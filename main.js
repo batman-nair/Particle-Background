@@ -246,6 +246,12 @@ document.addEventListener("click", function() {
     }
 });
 
+document.addEventListener("touchstart", function() {
+    if (PresetValue) {
+        PresetValue = PresetValue % NUM_PRESETS + 1;
+        setPresets(PresetValue);
+    }
+});
 
 document.addEventListener("resize", function() {
     windowWidth = window.innerWidth;
