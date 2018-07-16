@@ -239,6 +239,12 @@ function setPresets(num) {
     }
 }
 
+function windowResized() {
+    windowWidth = window.innerWidth;
+    windowHeight = window.innerHeight;
+    resizeCanvas(windowWidth, windowHeight);
+}
+
 document.addEventListener("click", function() {
     if (PresetValue) {
         PresetValue = PresetValue % NUM_PRESETS + 1;
@@ -253,7 +259,3 @@ document.addEventListener("touchstart", function() {
     }
 });
 
-document.addEventListener("resize", function() {
-    windowWidth = window.innerWidth;
-    windowHeight = window.innerHeight;
-});
